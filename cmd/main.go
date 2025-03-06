@@ -5,6 +5,12 @@ import (
 	"resty.dev/v3"
 )
 
+const (
+	chargedStatus = "Charged"
+	transactionType = "MER"
+)
+
+
 // ClientConfig holds the configuration for the EcoCash client
 type ClientConfig struct {
 	BaseURL           string
@@ -27,8 +33,8 @@ type Client struct {
 	config ClientConfig
 }
 
-// SimplePayment represents the simplified payment request
-type SimplePayment struct {
+// ChargeSubscriberRequest represents the simplified payment request
+type ChargeSubscriberRequest struct {
 	ReferenceCode string  // Your unique reference for this transaction
 	PhoneNumber   string  // Customer's phone number
 	Amount        float64 // Amount to charge
@@ -128,20 +134,20 @@ func createBasePaymentAmount(amount float64, currency, description string) payme
 }
 
 // Charge initiates a payment request with simplified parameters
-func (c *Client) Charge(payment SimplePayment) (*TransactionResponse, error) {
+func (c *Client) Charge(request ChargeSubscriberRequest) (*TransactionResponse, error) {
 	req := &chargeRequest{
-		ClientCorrelator:           payment.ReferenceCode,
+		ClientCorrelator:           request.ReferenceCode,
 		NotifyURL:                  c.config.NotifyURL,
-		ReferenceCode:              payment.ReferenceCode,
-		TranType:                   "MER",
-		EndUserID:                  payment.PhoneNumber,
-		Remarks:                    payment.Description,
-		TransactionOperationStatus: "Charged",
-		PaymentAmount:              createBasePaymentAmount(payment.Amount, payment.Currency, payment.Description),
+		ReferenceCode:              request.ReferenceCode,
+		TranType:                   transactionType,
+		EndUserID:                  request.PhoneNumber,
+		Remarks:                    request.Description,
+		TransactionOperationStatus: chargedStatus,
+		PaymentAmount:              createBasePaymentAmount(request.Amount, request.Currency, request.Description),
 		MerchantCode:               c.config.MerchantCode,
 		MerchantPin:                c.config.MerchantPin,
 		MerchantNumber:             c.config.MerchantNumber,
-		CurrencyCode:               payment.Currency,
+		CurrencyCode:               request.Currency,
 		CountryCode:                c.config.CountryCode,
 		TerminalID:                 c.config.TerminalID,
 		Location:                   c.config.Location,
@@ -149,10 +155,15 @@ func (c *Client) Charge(payment SimplePayment) (*TransactionResponse, error) {
 		MerchantName:               c.config.MerchantName,
 	}
 
+	var response TransactionResponse
+
 	resp, err := c.client.R().
 		SetBody(req).
-		SetResult(&TransactionResponse{}).
-		Post(c.config.BaseURL + "/payment/v1/transactions/amount")
+		SetResult(&response).
+		EnableTrace().
+		Post(c.config.BaseURL + "/request/v1/transactions/amount")
+
+	fmt.Println(resp.Request.TraceInfo())
 
 	if err != nil {
 		return nil, err
@@ -162,7 +173,7 @@ func (c *Client) Charge(payment SimplePayment) (*TransactionResponse, error) {
 		return nil, fmt.Errorf("charge request failed with status code: %d", resp.StatusCode())
 	}
 
-	return resp.Result().(*TransactionResponse), nil
+	return &response, nil
 }
 
 // Refund initiates a refund request with simplified parameters
