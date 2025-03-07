@@ -25,6 +25,7 @@ type ClientConfig struct {
 	Location          string
 	CountryCode       string // Usually "ZW"
 	NotifyURL         string
+	TraceRequests	bool
 }
 
 // Client represents an EcoCash API client
@@ -160,10 +161,8 @@ func (c *Client) Charge(request ChargeSubscriberRequest) (*TransactionResponse, 
 	resp, err := c.client.R().
 		SetBody(req).
 		SetResult(&response).
-		EnableTrace().
-		Post(c.config.BaseURL + "/request/v1/transactions/amount")
-
-	fmt.Println(resp.Request.TraceInfo())
+		SetDebug(c.config.TraceRequests).
+		Post(c.config.BaseURL + "/payment/v1/transactions/amount")
 
 	if err != nil {
 		return nil, err
@@ -216,6 +215,7 @@ func (c *Client) Refund(refund SimpleRefund) (*TransactionResponse, error) {
 func (c *Client) QueryTransaction(phoneNumber, referenceCode string) (*TransactionResponse, error) {
 	resp, err := c.client.R().
 		SetResult(&TransactionResponse{}).
+		SetDebug(c.config.TraceRequests).
 		Get(fmt.Sprintf("%s/payment/v1/%s/transactions/amount/%s",
 			c.config.BaseURL, phoneNumber, referenceCode))
 
