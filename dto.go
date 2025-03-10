@@ -62,6 +62,6 @@ type TransactionResponse struct {
 	ServerReferenceCode        string        `json:"serverReferenceCode"`
 	TransactionOperationStatus string        `json:"transactionOperationStatus"`
 	ResponseCode               string        `json:"responseCode"`
-	EcocashReference           string        `json:"ecocashReference"`
-	PaymentAmount              paymentAmount `json:"paymentAmount"`
+	EcocashReference string        `json:"ecocashReference"`
+	PaymentAmount    paymentAmount `json:"paymentAmount"`
 }
