@@ -1,5 +1,8 @@
 # EcoCash Client Go
 
+[![Go Version](https://img.shields.io/badge/Go-1.23.0+-blue.svg)](https://golang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Go client library for integrating with the EcoCash payment API in Zimbabwe. This library provides a simple and clean interface for processing payments, refunds, and querying transaction status.
 
 ## Features
@@ -17,6 +20,11 @@ A Go client library for integrating with the EcoCash payment API in Zimbabwe. Th
 ```bash
 go get github.com/scape-labs/ecocash-client-go
 ```
+
+## Requirements
+
+- Go 1.23.0 or later
+- Valid EcoCash merchant account and API credentials
 
 ## Quick Start
 
@@ -193,11 +201,21 @@ Phone numbers should be in international format without the `+` sign:
 go test ./...
 ```
 
+### Running Tests with Coverage
+
+```bash
+go test -cover ./...
+```
+
 ### Building
 
 ```bash
 go build ./...
 ```
+
+### Example Usage
+
+See the `examples/` directory for complete working examples of how to use this library.
 
 ## Contributing
 
